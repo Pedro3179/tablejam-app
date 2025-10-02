@@ -32,18 +32,20 @@ if not (search_begin(original) and search_begin(translation)):
 fhandle_table=open('table.csv', "w")
 fhandle_table.write('ORIGINAL;TRANSLATION\n')
 
-origin_lst=re.findall(r'\d\n\d\d:\d\d:\d\d\,\d\d\d\s\-\-\>\s\d\d:\d\d:\d\d\,\d\d\d\n(.+\n.*)\n', original)
-
-for i in origin_lst:
-    i=i.replace('\n',' ')
-    fhandle_table.write(f'{i};\n')
-
+origin_lst=re.findall(r'(\d+)\n\d\d:\d\d:\d\d\,\d\d\d\s\-\-\>\s\d\d:\d\d:\d\d\,\d\d\d\n(.+\n.*)\n', original)
+#print('Origin=',origin_lst)
 # Repeat the process with translation (maybe create a dict)
-trans_lst=re.findall(r'\d\n\d\d:\d\d:\d\d\,\d\d\d\s\-\-\>\s\d\d:\d\d:\d\d\,\d\d\d\n(.+\n.*)\n', translation)
+trans_lst=re.findall(r'(\d+)\n\d\d:\d\d:\d\d\,\d\d\d\s\-\-\>\s\d\d:\d\d:\d\d\,\d\d\d\n(.+\n.*)\n', translation)
 
 
-
-
+# If Subtitle number of original and translation are the same, then they are written in the csv file
+for origin_id, o in origin_lst:
+    for trans_id, t in trans_lst:
+        if origin_id==trans_id:
+            o=o.replace('\n',' ')
+            t=t.replace('\n',' ')
+            fhandle_table.write(f'{o};')
+            fhandle_table.write(f'{t}\n')
 
 
 
