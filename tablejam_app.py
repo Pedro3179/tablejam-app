@@ -6,11 +6,12 @@ def start_search(str_val):
 def parse_sub(str_val):
     return re.findall(r'(\d+)\n\d\d:\d\d:\d\d\,\d\d\d\s\-\-\>\s\d\d:\d\d:\d\d\,\d\d\d\n(.+\n.*)\n', str_val)
 
-
+# Ask for input
 while True:
     text_origin=input('Enter the original text (file.extesion):')
     text_trans=input('Enter the translation (file.extesion):')
-    
+
+# Read the file and check for wrong formats and encoding errors.    
     try:
         fhandle_origin=open(text_origin, encoding='utf-8-sig')
         original=fhandle_origin.read()
@@ -33,11 +34,10 @@ while True:
                 continue
     break  
     
-
 #print(f'Content: {original}')
 
 # Check if file format is OK.
-## Remember to alter this code to support more formats
+## Remember to alter this code to support more formats in the future
 if not (start_search(original) and start_search(translation)):
     print('Error: corrupted file. Try a supported file format.')
     time.sleep(4)
@@ -64,5 +64,4 @@ for origin_id, o in origin_lst:
             t=t.replace('\n',' ').replace(';',',')
             fhandle_table.write(f'{o};')
             fhandle_table.write(f'{t}\n')
-
 fhandle_table.close
