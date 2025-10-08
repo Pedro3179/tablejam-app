@@ -60,8 +60,8 @@ trans_lst=parse_sub(translation)
 for origin_id, o in origin_lst:
     for trans_id, t in trans_lst:
         if origin_id==trans_id:
-            o=o.replace('\n',' ').replace(';',',') #Remove \n and ; as this can cause problems in the csv
-            t=t.replace('\n',' ').replace(';',',')
+            o=o.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -') #Remove '\n', ';' and '"' as this can cause problems in the csv
+            t=t.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -') #Add a space before "-", because excel can confuse it with a math operator
             fhandle_table.write(f'{o};')
             fhandle_table.write(f'{t}\n')
 fhandle_table.close
