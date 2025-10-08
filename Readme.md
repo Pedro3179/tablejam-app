@@ -38,6 +38,10 @@ No extra installations are required.
 6. Click on *Insert, Table,* then *Convert Text to Table*.
 7. Under *Separate text at*, select *Semicolons*.
 
+### Excel
+
+Just open and *voilà*.
+
 ---
 
 ## Future Improvements
