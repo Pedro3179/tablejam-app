@@ -3,3 +3,4 @@ mbox-short.txt
 *.srt
 *.csv
 temp.py
+*.exe
