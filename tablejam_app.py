@@ -1,3 +1,11 @@
+'''
+TableJam - A tool to align SRT transcription and translation files
+and export them as a clean CSV table.
+'''
+
+__version__='1.0.1'
+__updated__='2025-11-21'
+
 import re, time
 
 def start_search(str_val):
@@ -12,12 +20,14 @@ def parse_sub(str_val):
         str_val
     )
 
+print(f'\nTableJam-app - version {__version__} (updated {__updated__})\n')
+
 # Ask for transcription and translation.
 while True:
     text_origin=input('Enter the original text (file.extesion):')
     text_trans=input('Enter the translation (file.extesion):')
 
-# Read the file and check for wrong formats and encoding errors.    
+# Read the file and check for wrong format and encoding errors.    
     try:
         fhandle_origin=open(text_origin, encoding='utf-8-sig')
         original=fhandle_origin.read()
@@ -59,7 +69,7 @@ fhandle_table.write('ORIGINAL;TRANSLATION\n')
 
 # Make a list to store original subtitles
 origin_lst=parse_sub(original)
-#print(len(origin_lst))
+#print(origin_lst)
 
 # Repeat the process with translation
 trans_lst=parse_sub(translation)
