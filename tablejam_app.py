@@ -3,7 +3,7 @@ TableJam - A tool to align SRT transcription and translation files
 and export them as a clean CSV table.
 '''
 
-__version__='2.0.0'
+__version__='2.0.1'
 __updated__='2025-11-28'
 
 import re
@@ -28,18 +28,6 @@ class LinkedList:
         self.head=None      # You can use this variable to indicate the head later
         self.last_node=None
     
-# Define a method to create a list with all the data
-    def to_list(self):
-        lst=[]
-        if self.head is None:
-            return lst
-        
-        node=self.head
-        while node is not None:
-            lst.append(node.data)
-            node=node.next_node
-        return lst
-
     def print_ll(self):
         ll_string=''
         node=self.head      # Take the node object defined to be the head and store it in node.
@@ -83,8 +71,6 @@ class LinkedList:
                 return
             node.next_node=new_node
 
-
-
 def start_search(str_val):
     return re.search(
         r'^[1-9]\n\d\d:\d\d:\d\d\,\d\d\d\s\-\-\>\s\d\d:\d\d:\d\d\,\d\d\d\n',
@@ -119,8 +105,6 @@ def equal_span(origin_time, trans_time):
     else:
         return False
 
-print(f'\nTableJam-app - version {__version__} (updated {__updated__})\n')
-
 def print_table(table):
     print('[')
     for i in table:
@@ -128,6 +112,8 @@ def print_table(table):
         i_without_new_line=i_without_new_line[:-1]
         print(f'    {i[0]} {i[1]} {i[2]} {i_without_new_line},')
     print(']')
+
+print(f'\nTableJam-app - version {__version__} (updated {__updated__})\n')
 
 # Ask for transcription and translation.
 while True:
@@ -174,11 +160,9 @@ if not (start_search(original) and start_search(translation)):
 origin_lst=parse_sub(original)
 trans_lst=parse_sub(translation)
 
-# Make a list of tuples to store the original sub and its translation.
-
-
 # Fix split translation lines.
-table=[]
+table=[]    # List of tuples to store the original sub and its translation.
+
 for o_id, o_start, o_end, o_body in origin_lst:
     sub_string=''
     for t_id, t_start, t_end, t_body in trans_lst:
@@ -191,16 +175,10 @@ for o_id, o_start, o_end, o_body in origin_lst:
             line=(o_id,o_start, o_end, f' {o_body}  ;{sub_string}{t_body} \n') 
             table.append(line)
             break
+
         else:
             t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
             sub_string+=f'{t_body}'
-
-#        if origin_id==trans_id:
-#            o=o.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -') #Remove '\n', ';' and '"' as this can cause problems in the csv
-#            t=t.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -') #Add a space before "-", because excel can confuse it with a math operator
-#            fhandle_table.write(f'{origin_id} {o};')
-#            fhandle_table.write(f'{t}\n')
-
 
 # Fix concatanated translation lines.
 table_2=[]
@@ -221,24 +199,18 @@ for t_id, t_start, t_end, t_body in trans_lst:
             o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
             sub_string+=f'{o_body} '
 
-# Find the largest table size
-if len(origin_lst)>len(trans_lst):
-    size=len(origin_lst)
-else:
-    size=len(trans_lst)
-
-
-
-
+# Create a linked list to store the fixed translation split problem.
 ll=LinkedList()
+
 for (id, t1 , t2 , text)  in table:
     ll.insert_next(id, t1 , t2 , text)
 
+# Add list that fixed the concatened translation issue to the previsous linked list instance.
 for (id, t1 , t2 , text)  in table_2:
     ll.insert_next(id, t1 , t2 , text)
 
-print_table(table)
-print_table(table_2)
+#print_table(table)
+#print_table(table_2)
 
 #ll.print_ll()
 
@@ -246,7 +218,9 @@ print_table(table_2)
 fhandle_table=open('table.csv', "w")
 fhandle_table.write('ORIGINAL;TRANSLATION\n')
 
+# Loop through the linked list and write each node id and text fields to the CSV file.
 node=ll.head
+
 while node is not None:
     fhandle_table.write(f'{str(node.data.id)} {str(node.data.text)}')                                                   
     node=node.next_node             # Take the next_node as defined in the node object.
