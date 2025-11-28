@@ -4,10 +4,86 @@ and export them as a clean CSV table.
 '''
 
 __version__='2.0.0'
-__updated__='2025-11-24'
+__updated__='2025-11-28'
 
-import re, datetime
-from datetime import time, timedelta, datetime
+import re
+from datetime import time, timedelta
+
+# Linked List.
+class Node: 
+    def __init__(self, data=None, next_node=None):
+        self.data=data
+        self.next_node=next_node
+
+class Data:
+    def __init__(self, id, t1, t2, text):
+        self.id=id
+        self.t1= t1    # Subtitle start time
+        self.t2= t2    # Subtitle end time
+        self.text=text
+
+# Define the wrapper.
+class LinkedList:
+    def __init__(self):
+        self.head=None      # You can use this variable to indicate the head later
+        self.last_node=None
+    
+# Define a method to create a list with all the data
+    def to_list(self):
+        lst=[]
+        if self.head is None:
+            return lst
+        
+        node=self.head
+        while node is not None:
+            lst.append(node.data)
+            node=node.next_node
+        return lst
+
+    def print_ll(self):
+        ll_string=''
+        node=self.head      # Take the node object defined to be the head and store it in node.
+        if node is None:
+            print(None)
+
+# Vizual representation of the data structure/linked list.
+        print('{')
+        while node is not None:
+            print(f'  {str(node.data.id)} {str(node.data.t1)} {str(node.data.t2)} {str(node.data.text)}')
+                                                       
+            node=node.next_node             # Take the next_node as defined in the node object.
+        print('}')
+
+    def insert_beginning(self, id , t1 , t2 , textual):
+        if self.head is None:
+            self.head=Node(Data( id , t1 , t2 , textual), None)
+            self.last_node=self.head
+        else:
+            new_node= Node(Data( id , t1 , t2 , textual), self.head)
+            self.head=new_node
+
+    def insert_next(self, id , t1 , t2 , textual):
+        id=int(id)
+        if self.head is None or id<self.head.data.id:
+            self.insert_beginning( id , t1 , t2 , textual)
+        
+        else:
+            new_node=Node(Data(id , t1 , t2 , textual))
+            node=self.head
+            while node.next_node:
+                if equal_span(t1, node.data.t1) and equal_span(t2, node.data.t2):
+                    return
+                
+                if t1 > node.data.t2 and t2 < node.next_node.data.t1:
+                    node.next_node=new_node
+                    return
+
+                node=node.next_node
+            if equal_span(t1, node.data.t1) and equal_span(t2, node.data.t2):
+                return
+            node.next_node=new_node
+
+
 
 def start_search(str_val):
     return re.search(
@@ -24,13 +100,18 @@ def parse_sub(str_val):
 def str_to_delta(str_val):
     lst=re.split(r'[:,]', str_val)
     milli_to_micro=(int(lst[3]))*1000
-    delta=timedelta(hours=int(lst[0]), minutes=int(lst[1]), seconds=int(lst[2]), microseconds=milli_to_micro)
+    delta=timedelta(
+        hours=int(lst[0]),
+        minutes=int(lst[1]),
+        seconds=int(lst[2]),
+        microseconds=milli_to_micro
+    )
     return delta
         
 def equal_span(origin_time, trans_time):
     origin_time=str_to_delta(origin_time)
     trans_time=str_to_delta(trans_time)
-    span=timedelta(microseconds=999999) #The span is the min duration of a subtitle (1s).
+    span=timedelta(microseconds=800000) #The span should be less than the min duration of a subtitle (1s).
 
     # if translation timestamp is within a given span of the original timestamp, it returns True.
     if (origin_time-span) <trans_time< (origin_time+span): 
@@ -39,6 +120,14 @@ def equal_span(origin_time, trans_time):
         return False
 
 print(f'\nTableJam-app - version {__version__} (updated {__updated__})\n')
+
+def print_table(table):
+    print('[')
+    for i in table:
+        i_without_new_line=i[3]
+        i_without_new_line=i_without_new_line[:-1]
+        print(f'    {i[0]} {i[1]} {i[2]} {i_without_new_line},')
+    print(']')
 
 # Ask for transcription and translation.
 while True:
@@ -81,19 +170,15 @@ if not (start_search(original) and start_search(translation)):
     time.sleep(4)
     exit()
 
-# Create the columns in table.csv
-fhandle_table=open('table.csv', "w")
-fhandle_table.write('ORIGINAL;TRANSLATION\n')
-
-# Make a list to store original subtitles
+# Make lists to store original and translation subtitles
 origin_lst=parse_sub(original)
-#print(origin_lst)
-
-# Repeat the process with translation
 trans_lst=parse_sub(translation)
-#print(len(trans_lst))
+
+# Make a list of tuples to store the original sub and its translation.
 
 
+# Fix split translation lines.
+table=[]
 for o_id, o_start, o_end, o_body in origin_lst:
     sub_string=''
     for t_id, t_start, t_end, t_body in trans_lst:
@@ -102,17 +187,68 @@ for o_id, o_start, o_end, o_body in origin_lst:
         
         if equal_span(o_end, t_end):
             o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
-            fhandle_table.write(f'{o_id} {o_body}  ;')
             t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
-            fhandle_table.write(f'{sub_string}{t_body}  \n')
+            line=(o_id,o_start, o_end, f' {o_body}  ;{sub_string}{t_body} \n') 
+            table.append(line)
             break
         else:
             t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
-            sub_string+=f' {t_body}  '
+            sub_string+=f'{t_body}'
 
 #        if origin_id==trans_id:
 #            o=o.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -') #Remove '\n', ';' and '"' as this can cause problems in the csv
 #            t=t.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -') #Add a space before "-", because excel can confuse it with a math operator
 #            fhandle_table.write(f'{origin_id} {o};')
 #            fhandle_table.write(f'{t}\n')
+
+
+# Fix concatanated translation lines.
+table_2=[]
+
+for t_id, t_start, t_end, t_body in trans_lst:
+    sub_string=''
+    for o_id, o_start, o_end, o_body in origin_lst:
+        if equal_span(o_start, t_start) is False and str_to_delta(t_start) > str_to_delta(o_start):
+            continue
+        
+        if equal_span(o_end, t_end):
+            o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
+            t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
+            line=(t_id,t_start, t_end, f'{sub_string} {o_body}  ;{t_body}  \n') 
+            table_2.append(line)
+            break
+        else:
+            o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
+            sub_string+=f'{o_body} '
+
+# Find the largest table size
+if len(origin_lst)>len(trans_lst):
+    size=len(origin_lst)
+else:
+    size=len(trans_lst)
+
+
+
+
+ll=LinkedList()
+for (id, t1 , t2 , text)  in table:
+    ll.insert_next(id, t1 , t2 , text)
+
+for (id, t1 , t2 , text)  in table_2:
+    ll.insert_next(id, t1 , t2 , text)
+
+print_table(table)
+print_table(table_2)
+
+#ll.print_ll()
+
+# Create the columns and write the rows to table.csv.
+fhandle_table=open('table.csv', "w")
+fhandle_table.write('ORIGINAL;TRANSLATION\n')
+
+node=ll.head
+while node is not None:
+    fhandle_table.write(f'{str(node.data.id)} {str(node.data.text)}')                                                   
+    node=node.next_node             # Take the next_node as defined in the node object.
+
 fhandle_table.close
