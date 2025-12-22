@@ -78,12 +78,15 @@ def start_search(str_val):
     )
 
 def parse_sub(str_val):
+    ''' Return a list of tuples with the following items: subtitle id, start time,
+    end time and text. '''
     return re.findall(
         r'(\d+)\n(\d\d:\d\d:\d\d\,\d\d\d\s)\-\-\>\s(\d\d:\d\d:\d\d\,\d\d\d)\n(.+\n.*)\n',
         str_val
     )
 
 def str_to_delta(str_val):
+    ''' Take a string parameter and convert it to an object timedelta '''
     lst=re.split(r'[:,]', str_val)
     milli_to_micro=(int(lst[3]))*1000
     delta=timedelta(
@@ -114,6 +117,7 @@ def print_table(table):
     print(']')
 
 print(f'\nTableJam-app - version {__version__} (updated {__updated__})\n')
+
 
 # Ask for transcription and translation.
 while True:
@@ -147,8 +151,6 @@ while True:
                 continue
     break  
     
-#print(f'Content: {original}')
-
 # Check if file format is OK.
 ## Remember to alter this code to support more formats in the future
 if not (start_search(original) and start_search(translation)):
@@ -160,12 +162,14 @@ if not (start_search(original) and start_search(translation)):
 origin_lst=parse_sub(original)
 trans_lst=parse_sub(translation)
 
-# Fix split translation lines.
+# Firstly, fix split translation lines.
 table=[]    # List of tuples to store the original sub and its translation.
 
 for o_id, o_start, o_end, o_body in origin_lst:
     sub_string=''
     for t_id, t_start, t_end, t_body in trans_lst:
+
+        # Skip if two or more lines of the original was concatanated into one in the translation.  
         if equal_span(o_start, t_start) is False and str_to_delta(t_start) < str_to_delta(o_start):
             continue
         
@@ -180,12 +184,14 @@ for o_id, o_start, o_end, o_body in origin_lst:
             t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
             sub_string+=f'{t_body}'
 
-# Fix concatanated translation lines.
+# Secondly, fix concatanated translation lines.
 table_2=[]
 
 for t_id, t_start, t_end, t_body in trans_lst:
     sub_string=''
     for o_id, o_start, o_end, o_body in origin_lst:
+
+        # Skip if a line of the original was split into two or more in the translation.          
         if equal_span(o_start, t_start) is False and str_to_delta(t_start) > str_to_delta(o_start):
             continue
         
@@ -199,13 +205,13 @@ for t_id, t_start, t_end, t_body in trans_lst:
             o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
             sub_string+=f'{o_body} '
 
-# Create a linked list to store the fixed translation split problem.
+# Create a linked list to store the first list that fixes the split lines problem.
 ll=LinkedList()
 
 for (id, t1 , t2 , text)  in table:
     ll.insert_next(id, t1 , t2 , text)
 
-# Add list that fixed the concatened translation issue to the previsous linked list instance.
+# Add list that fixed the concatened translation issue to the previous linked list instance.
 for (id, t1 , t2 , text)  in table_2:
     ll.insert_next(id, t1 , t2 , text)
 
