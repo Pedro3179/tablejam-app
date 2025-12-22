@@ -28,15 +28,21 @@ No extra installations are required.
 ## How to Run
 
 1. Clone this repository or copy the script.
-2. **Attention:** Make sure original and translation files have the same number of subtitles. Translating your source material in *Translator Mode* (that is, side by side) is advised. 
-3. Run the script from the command prompt:
+2. Run the script from the command prompt:
 
    ```bash
    python tablejam_app.py
-4. Open table.csv on *Microsoft Word*.
-5. Select all.
-6. Click on *Insert, Table,* then *Convert Text to Table*.
-7. Under *Separate text at*, select *Semicolons*.
+3. Enter the original subtitle and its extension (*filename*.srt).
+4. Enter the translated subtitle and its extension.
+5. **Warning:** The source material and translation must be located in the same folder as TableJam.
+6. Open the resulting `table.csv` with *Word* or *Excel*, following the instructions below.
+
+### Word
+
+1. Open `table.csv` on *Microsoft Word*.
+2. Select all.
+3. Click on *Insert, Table,* then *Convert Text to Table*.
+4. Under *Separate text at*, select *Semicolons*.
 
 ### Excel
 
@@ -46,6 +52,4 @@ Just open and *voilà*.
 
 ## Future Improvements
 
-- Work with different number of subtitles in the transcription and translation.
-- Enumerate the lines in the table.
-- Improve usability by allowing users to place transcription and translation files in dedicated directories instead of entering filenames manually.
+- Develop na interactive Graphical User Interface.
