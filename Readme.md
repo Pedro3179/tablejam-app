@@ -52,4 +52,4 @@ Just open and *voilà*.
 
 ## Future Improvements
 
-- Develop na interactive Graphical User Interface.
+- Develop an interactive Graphical User Interface.
