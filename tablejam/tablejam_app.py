@@ -3,8 +3,8 @@ TableJam - A tool to align SRT transcription and translation files
 and export them as a clean CSV table.
 '''
 
-__version__='2.0.1'
-__updated__='2025-11-28'
+__version__='3.0.0'
+__updated__='2026-01-09'
 
 import re
 from datetime import time, timedelta
@@ -118,117 +118,111 @@ def print_table(table):
 
 print(f'\nTableJam-app - version {__version__} (updated {__updated__})\n')
 
-
-# Ask for transcription and translation.
-while True:
-    text_origin=input('Enter the original text (file.extesion):')
-    text_trans=input('Enter the translation (file.extesion):')
-
 # Read the file and check for wrong format and encoding errors.    
+def process_files(origin_path, trans_path, output_path="table.csv"):
     try:
-        fhandle_origin=open(text_origin, encoding='utf-8-sig')
+        fhandle_origin=open(origin_path, encoding='utf-8-sig')
         original=fhandle_origin.read()
     except:
         try:
-            fhandle_origin=open(text_origin, encoding='cp1252')
+            fhandle_origin=open(origin_path, encoding='cp1252')
             original=fhandle_origin.read()
-        except:
-            print(
-                'Error: Original wrong file format or encoding. Try again with a valid file.\n'
+        except Exception as e:
+            raise RuntimeError(
+                'Error: Original wrong file format or encoding. Try again with a valid file.'
             )
-            continue
     try:
-        fhandle_trans=open(text_trans, encoding='utf-8-sig')
+        fhandle_trans=open(trans_path, encoding='utf-8-sig')
         translation=fhandle_trans.read()
     except:
             try:
-                fhandle_trans=open(text_trans, encoding='cp1252')
+                fhandle_trans=open(trans_path, encoding='cp1252')
                 translation=fhandle_trans.read()
-            except:
-                print(
-                    'Error: Translation wrong file format or encoding. Try again with a valid file.\n'
+            except Exception as e:
+                raise RuntimeError(
+                    'Error: Translation wrong file format or encoding. Try again with a valid file.'
                 )
-                continue
-    break  
-    
-# Check if file format is OK.
-## Remember to alter this code to support more formats in the future
-if not (start_search(original) and start_search(translation)):
-    print('Error: corrupted file. Try a supported file format.')
-    time.sleep(4)
-    exit()
+            
+    # Check if file format is OK.
+    ## Remember to alter this code to support more formats in the future
+    if not (start_search(original) or start_search(translation)):
+        raise RuntimeError(
+            'Error: corrupted file. Try a supported file format.'
+            )
 
-# Make lists to store original and translation subtitles
-origin_lst=parse_sub(original)
-trans_lst=parse_sub(translation)
+    # Make lists to store original and translation subtitles
+    origin_lst=parse_sub(original)
+    trans_lst=parse_sub(translation)
 
-# Firstly, fix split translation lines.
-table=[]    # List of tuples to store the original sub and its translation.
+    # Firstly, fix split translation lines.
+    table=[]    # List of tuples to store the original sub and its translation.
 
-for o_id, o_start, o_end, o_body in origin_lst:
-    sub_string=''
-    for t_id, t_start, t_end, t_body in trans_lst:
-
-        # Skip if two or more lines of the original was concatanated into one in the translation.  
-        if equal_span(o_start, t_start) is False and str_to_delta(t_start) < str_to_delta(o_start):
-            continue
-        
-        if equal_span(o_end, t_end):
-            o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
-            t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
-            line=(o_id,o_start, o_end, f' {o_body}  ;{sub_string}{t_body} \n') 
-            table.append(line)
-            break
-
-        else:
-            t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
-            sub_string+=f'{t_body}'
-
-# Secondly, fix concatanated translation lines.
-table_2=[]
-
-for t_id, t_start, t_end, t_body in trans_lst:
-    sub_string=''
     for o_id, o_start, o_end, o_body in origin_lst:
+        sub_string=''       
+        for t_id, t_start, t_end, t_body in trans_lst:
 
-        # Skip if a line of the original was split into two or more in the translation.          
-        if equal_span(o_start, t_start) is False and str_to_delta(t_start) > str_to_delta(o_start):
-            continue
-        
-        if equal_span(o_end, t_end):
-            o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
-            t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
-            line=(t_id,t_start, t_end, f'{sub_string} {o_body}  ;{t_body}  \n') 
-            table_2.append(line)
-            break
-        else:
-            o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
-            sub_string+=f'{o_body} '
+            # Skip if two or more lines of the original was concatanated into one in the translation.  
+            if equal_span(o_start, t_start) is False and str_to_delta(t_start) < str_to_delta(o_start):
+                continue
+            
+            if equal_span(o_end, t_end):
+                o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
+                t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
+                line=(o_id,o_start, o_end, f' {o_body}  ;{sub_string}{t_body} \n') 
+                table.append(line)
+                break
 
-# Create a linked list to store the first list that fixes the split lines problem.
-ll=LinkedList()
+            else:
+                t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
+                sub_string+=f'{t_body}'
 
-for (id, t1 , t2 , text)  in table:
-    ll.insert_next(id, t1 , t2 , text)
+    # Secondly, fix concatanated translation lines.
+    table_2=[]
 
-# Add list that fixed the concatened translation issue to the previous linked list instance.
-for (id, t1 , t2 , text)  in table_2:
-    ll.insert_next(id, t1 , t2 , text)
+    for t_id, t_start, t_end, t_body in trans_lst:
+        sub_string=''
+        for o_id, o_start, o_end, o_body in origin_lst:
 
-#print_table(table)
-#print_table(table_2)
+            # Skip if a line of the original was split into two or more in the translation.          
+            if equal_span(o_start, t_start) is False and str_to_delta(t_start) > str_to_delta(o_start):
+                continue
+            
+            if equal_span(o_end, t_end):
+                o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
+                t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
+                line=(t_id,t_start, t_end, f'{sub_string} {o_body}  ;{t_body}  \n') 
+                table_2.append(line)
+                break
+            else:
+                o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
+                sub_string+=f'{o_body} '
 
-#ll.print_ll()
+    # Create a linked list to store the first list that fixes the split lines problem.
+    ll=LinkedList()
 
-# Create the columns and write the rows to table.csv.
-fhandle_table=open('table.csv', "w")
-fhandle_table.write('ORIGINAL;TRANSLATION\n')
+    for (id, t1 , t2 , text)  in table:
+        ll.insert_next(id, t1 , t2 , text)
 
-# Loop through the linked list and write each node id and text fields to the CSV file.
-node=ll.head
+    # Add list that fixed the concatened translation issue to the previous linked list instance.
+    for (id, t1 , t2 , text)  in table_2:
+        ll.insert_next(id, t1 , t2 , text)
 
-while node is not None:
-    fhandle_table.write(f'{str(node.data.id)} {str(node.data.text)}')                                                   
-    node=node.next_node             # Take the next_node as defined in the node object.
+    #print_table(table)
+    #print_table(table_2)
 
-fhandle_table.close
+    #ll.print_ll()
+
+    # Create the columns and write the rows to table.csv.
+    fhandle_table=open(output_path, "w")
+    fhandle_table.write('ORIGINAL;TRANSLATION\n')
+
+    # Loop through the linked list and write each node id and text fields to the CSV file.
+    node=ll.head
+
+    while node is not None:
+        fhandle_table.write(f'{str(node.data.id)} {str(node.data.text)}')                                                   
+        node=node.next_node             # Take the next_node as defined in the node object.
+
+    fhandle_table.close
+
+import tablejam_gui
