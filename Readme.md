@@ -28,13 +28,12 @@ No extra installations are required.
 ## How to Run
 
 1. Clone this repository or copy the script.
-2. Run the script from the command prompt:
+2. Run the app from the terminal:
 
    ```bash
-   python tablejam_app.py
-3. Enter the original subtitle and its extension (*filename*.srt).
-4. Enter the translated subtitle and its extension.
-5. **Warning:** The source material and translation must be located in the same folder as TableJam.
+   python run.py
+3. Enter the original subtitle.
+4. Enter the translated subtitle.
 6. Open the resulting `table.csv` with *Word* or *Excel*, following the instructions below.
 
 ### Word
@@ -47,9 +46,3 @@ No extra installations are required.
 ### Excel
 
 Just open and *voilà*.
-
----
-
-## Future Improvements
-
-- Develop an interactive Graphical User Interface.
