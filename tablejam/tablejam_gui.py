@@ -3,10 +3,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QTextEdit, QMessageBox
 )
 import sys
-import re
-from datetime import timedelta
 
-from tablejam_app import process_files
+from tablejam.tablejam_app import process_files
 
 '''
 TableJam Graphical User Interface.
@@ -75,8 +73,8 @@ class TableJamGUI(QWidget):
             QMessageBox.critical(self, "Erro", str(e))
 
 # ================= MAIN =================
-
-app = QApplication(sys.argv)
-window = TableJamGUI()
-window.show()
-sys.exit(app.exec())
+def main():
+    app = QApplication(sys.argv)
+    window = TableJamGUI()
+    window.show()
+    sys.exit(app.exec())

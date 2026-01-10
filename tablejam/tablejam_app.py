@@ -145,10 +145,10 @@ def process_files(origin_path, trans_path, output_path="table.csv"):
             
     # Check if file format is OK.
     ## Remember to alter this code to support more formats in the future
-    if not (start_search(original) or start_search(translation)):
+    if not (start_search(original) and start_search(translation)):
         raise RuntimeError(
             'Error: corrupted file. Try a supported file format.'
-            )
+            ) 
 
     # Make lists to store original and translation subtitles
     origin_lst=parse_sub(original)
@@ -224,5 +224,3 @@ def process_files(origin_path, trans_path, output_path="table.csv"):
         node=node.next_node             # Take the next_node as defined in the node object.
 
     fhandle_table.close
-
-import tablejam_gui
