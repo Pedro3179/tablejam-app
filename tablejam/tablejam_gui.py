@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton, QFileDialog,
     QVBoxLayout, QHBoxLayout, QTextEdit, QMessageBox
 )
+from PyQt6.QtGui import QIcon
 import sys
 
 from tablejam.tablejam_app import process_files
@@ -75,6 +76,9 @@ class TableJamGUI(QWidget):
 # ================= MAIN =================
 def main():
     app = QApplication(sys.argv)
+    icon=QIcon('/Users/leone/Dropbox/Documentos/Programação/Projetos Pessoais/TableJam-app/assets/icon/TJ_256_v2.ico')
+    app.setWindowIcon(icon)
     window = TableJamGUI()
+    window.setWindowIcon(icon)
     window.show()
     sys.exit(app.exec())
