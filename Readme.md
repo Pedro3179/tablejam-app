@@ -46,3 +46,7 @@ No extra installations are required.
 ### Excel
 
 Just open and *voilà*.
+
+--
+
+Special thanks to Luana Selistre who created the art for the icons.
