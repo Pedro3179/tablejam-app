@@ -4,6 +4,8 @@ This is a Python application designed to parse subtitle files (in SRT format) an
 
 This allows you to to quickly compare the two versions side by side.
 
+Special thanks to Luana Selistre who created the art for the icons.
+
 ---
 
 ## Features
@@ -13,7 +15,6 @@ This allows you to to quickly compare the two versions side by side.
 - Exports a clean **CSV file** (`table.csv`) with two columns: Original and Translation.
 
 ### Warning
-
 Semicolons will be replaced by commas, otherwise they could break the CSV formatting.
 
 ---
@@ -26,7 +27,6 @@ No extra installations are required.
 ---
 
 ## How to Run
-
 1. Clone this repository or copy the script.
 2. Run the app from the terminal:
 
@@ -37,16 +37,10 @@ No extra installations are required.
 6. Open the resulting `table.csv` with *Word* or *Excel*, following the instructions below.
 
 ### Word
-
 1. Open `table.csv` on *Microsoft Word*.
 2. Select all.
 3. Click on *Insert, Table,* then *Convert Text to Table*.
 4. Under *Separate text at*, select *Semicolons*.
 
 ### Excel
-
 Just open and *voilà*.
-
----
-
-Special thanks to Luana Selistre who created the art for the icons.

@@ -3,8 +3,8 @@ TableJam - A tool to align SRT transcription and translation files
 and export them as a clean CSV table.
 '''
 
-__version__='3.0.0'
-__updated__='2026-01-09'
+__version__='3.0.1'
+__updated__='2026-01-13'
 
 import re
 from datetime import time, timedelta

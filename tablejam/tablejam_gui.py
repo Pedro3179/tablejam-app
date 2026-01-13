@@ -14,7 +14,7 @@ TableJam Graphical User Interface.
 class TableJamGUI(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("TableJam 3.0.0")
+        self.setWindowTitle("TableJam 3.0.1")
         self.setMinimumWidth(500)
 
         self.origin_path = ""
@@ -25,12 +25,12 @@ class TableJamGUI(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
 
-        self.origin_label = QLabel("Original SRT: não selecionado")
-        self.trans_label = QLabel("Translation SRT: não selecionado")
+        self.origin_label = QLabel("Original SRT: not selected")
+        self.trans_label = QLabel("Translation SRT: not selected")
 
-        btn_origin = QPushButton("Selecionar Original")
-        btn_trans = QPushButton("Selecionar Tradução")
-        btn_run = QPushButton("Processar")
+        btn_origin = QPushButton("Select Original")
+        btn_trans = QPushButton("Select Translation")
+        btn_run = QPushButton("Process")
 
         btn_origin.clicked.connect(self.select_origin)
         btn_trans.clicked.connect(self.select_translation)
@@ -50,28 +50,28 @@ class TableJamGUI(QWidget):
         self.setLayout(layout)
 
     def select_origin(self):
-        path, _ = QFileDialog.getOpenFileName(self, "Selecionar Original", "", "SRT (*.srt)")
+        path, _ = QFileDialog.getOpenFileName(self, "Select Original", "", "SRT (*.srt)")
         if path:
             self.origin_path = path
             self.origin_label.setText(f"Original SRT: {path}")
 
     def select_translation(self):
-        path, _ = QFileDialog.getOpenFileName(self, "Selecionar Tradução", "", "SRT (*.srt)")
+        path, _ = QFileDialog.getOpenFileName(self, "Select Translation", "", "SRT (*.srt)")
         if path:
             self.trans_path = path
             self.trans_label.setText(f"Translation SRT: {path}")
 
     def run(self):
         if not self.origin_path or not self.trans_path:
-            QMessageBox.warning(self, "Erro", "Selecione os dois arquivos.")
+            QMessageBox.warning(self, "Error:", "Please select both files.")
             return
 
         try:
             process_files(self.origin_path, self.trans_path)
-            self.log.append("Processamento concluído com sucesso.")
-            self.log.append("Arquivo table.csv gerado.")
+            self.log.append("Processing completed successfully!")
+            self.log.append("table.csv file generated.")
         except Exception as e:
-            QMessageBox.critical(self, "Erro", str(e))
+            QMessageBox.critical(self, "Error", str(e))
 
 # ================= MAIN =================
 def main():
