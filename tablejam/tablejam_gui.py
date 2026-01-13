@@ -76,7 +76,7 @@ class TableJamGUI(QWidget):
 # ================= MAIN =================
 def main():
     app = QApplication(sys.argv)
-    icon=QIcon('/Users/leone/Dropbox/Documentos/Programação/Projetos Pessoais/TableJam-app/assets/icon/TJ_256_v2.ico')
+    icon=QIcon('assets/icon/TJ_256_v2.ico')
     app.setWindowIcon(icon)
     window = TableJamGUI()
     window.setWindowIcon(icon)
