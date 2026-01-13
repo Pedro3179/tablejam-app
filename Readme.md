@@ -47,6 +47,6 @@ No extra installations are required.
 
 Just open and *voilà*.
 
---
+---
 
 Special thanks to Luana Selistre who created the art for the icons.
