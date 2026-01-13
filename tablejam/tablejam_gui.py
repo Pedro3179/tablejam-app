@@ -3,8 +3,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QTextEdit, QMessageBox
 )
 from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import Qt
 import sys
-
 from tablejam.tablejam_app import process_files
 
 '''
@@ -39,6 +39,14 @@ class TableJamGUI(QWidget):
         self.log = QTextEdit()
         self.log.setReadOnly(True)
 
+        credit_label = QLabel(
+            '<a href="https://github.com/Pedro3179">Developed by Leonardo Cerqueira</a>'
+        )
+        credit_label.setOpenExternalLinks(True)
+        credit_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        credit_label.setStyleSheet("color: gray; font-size: 10px;")
+
+
         layout.addWidget(self.origin_label)
         layout.addWidget(btn_origin)
         layout.addWidget(self.trans_label)
@@ -46,6 +54,7 @@ class TableJamGUI(QWidget):
         layout.addWidget(btn_run)
         layout.addWidget(QLabel("Status"))
         layout.addWidget(self.log)
+        layout.addWidget(credit_label)
 
         self.setLayout(layout)
 

@@ -44,3 +44,9 @@ No extra installations are required.
 
 ### Excel
 Just open and *voilà*.
+
+---
+
+## Author
+Developed by Leonardo Neves Cerqueira
+GitHub: https://github.com/Pedro3179
