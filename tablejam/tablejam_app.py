@@ -59,7 +59,7 @@ class LinkedList:
             new_node=Node(Data(id , t1 , t2 , textual))
             node=self.head
             while node.next_node:
-                if equal_span(t1, node.data.t1) and equal_span(t2, node.data.t2):
+                if is_equal_span(t1, node.data.t1) and is_equal_span(t2, node.data.t2):
                     return
                 
                 if t1 > node.data.t2 and t2 < node.next_node.data.t1:
@@ -67,19 +67,19 @@ class LinkedList:
                     return
 
                 node=node.next_node
-            if equal_span(t1, node.data.t1) and equal_span(t2, node.data.t2):
+            if is_equal_span(t1, node.data.t1) and is_equal_span(t2, node.data.t2):
                 return
             node.next_node=new_node
 
-def start_search(str_val):
+def is_subtitle(str_val):
     return re.search(
         r'^[1-9]\n\d\d:\d\d:\d\d\,\d\d\d\s\-\-\>\s\d\d:\d\d:\d\d\,\d\d\d\n',
         str_val
     )
 
 def parse_sub(str_val):
-    ''' Return a list of tuples with the following items: subtitle id, start time,
-    end time and text. '''
+    '''Return a list of tuples with the following items: subtitle id, start time,
+    end time and text.'''
     return re.findall(
         r'(\d+)\n(\d\d:\d\d:\d\d\,\d\d\d\s)\-\-\>\s(\d\d:\d\d:\d\d\,\d\d\d)\n(.+\n.*)\n',
         str_val
@@ -97,7 +97,7 @@ def str_to_delta(str_val):
     )
     return delta
         
-def equal_span(origin_time, trans_time):
+def is_equal_span(origin_time, trans_time):
     origin_time=str_to_delta(origin_time)
     trans_time=str_to_delta(trans_time)
     span=timedelta(microseconds=800000) #The span should be less than the min duration of a subtitle (1s).
@@ -145,27 +145,27 @@ def process_files(origin_path, trans_path, output_path="table.csv"):
             
     # Check if file format is OK.
     ## Remember to alter this code to support more formats in the future
-    if not (start_search(original) and start_search(translation)):
+    if not (is_subtitle(original) and is_subtitle(translation)):
         raise RuntimeError(
             'Error: corrupted file. Try a supported file format.'
             ) 
 
     # Make lists to store original and translation subtitles
-    origin_lst=parse_sub(original)
-    trans_lst=parse_sub(translation)
+    original_lines=parse_sub(original)
+    translation_lines=parse_sub(translation)
 
     # Firstly, fix split translation lines.
     table=[]    # List of tuples to store the original sub and its translation.
 
-    for o_id, o_start, o_end, o_body in origin_lst:
+    for o_id, o_start, o_end, o_body in original_lines:
         sub_string=''       
-        for t_id, t_start, t_end, t_body in trans_lst:
+        for t_id, t_start, t_end, t_body in translation_lines:
 
             # Skip if two or more lines of the original was concatanated into one in the translation.  
-            if equal_span(o_start, t_start) is False and str_to_delta(t_start) < str_to_delta(o_start):
+            if is_equal_span(o_start, t_start) is False and str_to_delta(t_start) < str_to_delta(o_start):
                 continue
             
-            if equal_span(o_end, t_end):
+            if is_equal_span(o_end, t_end):
                 o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
                 t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
                 line=(o_id,o_start, o_end, f' {o_body}  ;{sub_string}{t_body} \n') 
@@ -179,15 +179,15 @@ def process_files(origin_path, trans_path, output_path="table.csv"):
     # Secondly, fix concatanated translation lines.
     table_2=[]
 
-    for t_id, t_start, t_end, t_body in trans_lst:
+    for t_id, t_start, t_end, t_body in translation_lines:
         sub_string=''
-        for o_id, o_start, o_end, o_body in origin_lst:
+        for o_id, o_start, o_end, o_body in original_lines:
 
             # Skip if a line of the original was split into two or more in the translation.          
-            if equal_span(o_start, t_start) is False and str_to_delta(t_start) > str_to_delta(o_start):
+            if is_equal_span(o_start, t_start) is False and str_to_delta(t_start) > str_to_delta(o_start):
                 continue
             
-            if equal_span(o_end, t_end):
+            if is_equal_span(o_end, t_end):
                 o_body=o_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
                 t_body=t_body.replace('\n',' ').replace(';',',').replace('"','').replace('-', ' -')
                 line=(t_id,t_start, t_end, f'{sub_string} {o_body}  ;{t_body}  \n') 
